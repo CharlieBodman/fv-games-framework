@@ -1,5 +1,6 @@
 const path = require("path");
 const fs = require("fs");
+const webpack = require("webpack");
 
 /*-------------- PLUGINS ------------------*/
 const CopyPlugin = require("copy-webpack-plugin");
@@ -12,13 +13,13 @@ const phaser = path.join(phaserModule, "build/custom/phaser-split.js")
 const pixi = path.join(phaserModule, "build/custom/pixi.js")
 const p2 = path.join(phaserModule, "build/custom/p2.js")
 
-
 module.exports = function (config)
 {
     /*--------------- PATHS ------------------ */
     const appRootPath = config.appRootPath;
     const outputPath = config.outputPath;
-
+    const env = config.env;
+    
     return {
         mode: "development",
         entry: {
@@ -39,7 +40,11 @@ module.exports = function (config)
             new CopyPlugin([
                 { from: "assets", to: path.join(outputPath, "assets") },
             ]),
-            new CleanWebpackPlugin({ cleanOnceBeforeBuildPatterns: [outputPath] })
+            new CleanWebpackPlugin({ cleanOnceBeforeBuildPatterns: [outputPath] }),
+            
+            new webpack.DefinePlugin({
+                ENV_API_URL:(env && env.API_URL) ? JSON.stringify(env.API_URL) : ""
+            })
         ],
         devServer: {
             host: '0.0.0.0',
@@ -51,16 +56,11 @@ module.exports = function (config)
 
                 app.use(bodyParser.json());
 
-                app.get("/get/some-data", function (req, res)
+                app.get("/dialects/null/words", function (req, res)
                 {
                     var content = fs.readFileSync(path.resolve(__dirname, "response_data", "response.json"));
 
                     res.send(content);
-                })
-
-                app.post("/post/some-data", bodyParser.json(), function (req, res)
-                {
-                    res.send("POST res sent from webpack dev server")
                 })
             }
         },
