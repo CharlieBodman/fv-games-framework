@@ -12,12 +12,13 @@ const phaser = path.join(phaserModule, "build/custom/phaser-split.js")
 const pixi = path.join(phaserModule, "build/custom/pixi.js")
 const p2 = path.join(phaserModule, "build/custom/p2.js")
 
+
 module.exports = function (config)
 {
     /*--------------- PATHS ------------------ */
     const appRootPath = config.appRootPath;
     const outputPath = config.outputPath;
-    
+
     return {
         mode: "development",
         entry: {
@@ -29,8 +30,15 @@ module.exports = function (config)
             filename: path.join("scripts", "[name].js")
         },
         plugins: [
-            new HtmlWebpackPlugin(),
-            new CopyPlugin([{ from: "assets", to: path.join(outputPath, "assets") }]),
+            new HtmlWebpackPlugin({
+                template: path.resolve(__dirname, "index.html"),
+                templateParameters: {
+                    title:"First Voices"
+                },
+            }),
+            new CopyPlugin([
+                { from: "assets", to: path.join(outputPath, "assets") },
+            ]),
             new CleanWebpackPlugin({ cleanOnceBeforeBuildPatterns: [outputPath] })
         ],
         devServer: {
